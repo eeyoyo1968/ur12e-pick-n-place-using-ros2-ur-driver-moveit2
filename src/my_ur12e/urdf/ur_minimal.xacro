@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://wiki.ros.org/xacro" name="ur12e">
+  <xacro:arg name="ur_type" default="ur12e"/>
+  <xacro:arg name="robot_ip" default="192.168.2.2"/>
+  <xacro:arg name="use_fake_hardware" default="false"/>
+
+  <xacro:include filename="$(find ur_description)/urdf/ur_macro.xacro"/>
+
+  <link name="world"/>
+  <xacro:ur_robot
+    name="ur"
+    tf_prefix=""
+    parent="world"
+    joint_limits_parameters_file="$(find ur_description)/config/$(arg ur_type)/joint_limits.yaml"
+    kinematics_parameters_file="$(find ur_description)/config/$(arg ur_type)/default_kinematics.yaml"
+    physical_parameters_file="$(find ur_description)/config/$(arg ur_type)/physical_parameters.yaml"
+    visual_parameters_file="$(find ur_description)/config/$(arg ur_type)/visual_parameters.yaml"
+    use_fake_hardware="$(arg use_fake_hardware)"
+    robot_ip="$(arg robot_ip)"
+    generate_ros2_control_tag="true">
+    <origin xyz="0 0 0" rpy="0 0 0" />
+  </xacro:ur_robot>
+</robot>

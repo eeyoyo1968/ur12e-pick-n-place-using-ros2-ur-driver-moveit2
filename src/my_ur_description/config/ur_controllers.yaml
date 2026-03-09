@@ -1,0 +1,126 @@
+controller_manager:
+  ros__parameters:
+    update_rate: 500  # Optimized for UR e-Series
+    use_sim_time: false
+
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+
+    scaled_joint_trajectory_controller:
+      type: ur_controllers/ScaledJointTrajectoryController
+
+    joint_trajectory_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+
+    robotiq_gripper_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+
+    force_torque_sensor_broadcaster:
+      type: force_torque_sensor_broadcaster/ForceTorqueSensorBroadcaster
+
+    ur_script_broadcaster:
+      type: ur_controllers/UrScriptBroadcaster
+
+    io_and_status_controller:
+      type: ur_controllers/GPIOController
+
+
+joint_state_broadcaster:
+  ros__parameters:
+    # This must be empty for standard operation, but the block must exist
+    {}
+
+
+# --- Force-Torque Sensor Configuration ---
+force_torque_sensor_broadcaster:
+  ros__parameters:
+    # Change 'tcp_fts_sensor' to 'fts_sensor' to match the e-Series hardware tag
+    sensor_name: fts_sensor 
+    state_interface_names:
+      - force.x
+      - force.y
+      - force.z
+      - torque.x
+      - torque.y
+      - torque.z
+    frame_id: tool0
+
+# --- Main Arm Controller (Real Hardware) ---
+scaled_joint_trajectory_controller:
+  ros__parameters:
+    joints:
+      - shoulder_pan_joint
+      - shoulder_lift_joint
+      - elbow_joint
+      - wrist_1_joint
+      - wrist_2_joint
+      - wrist_3_joint
+    command_interfaces:
+      - position
+    state_interfaces:
+      - position
+      - velocity
+    state_publish_rate: 100.0
+    action_monitor_rate: 20.0
+    allow_partial_joints_goal: false
+    constraints:
+      stopped_velocity_tolerance: 0.2
+      goal_time: 0.0
+      shoulder_pan_joint: { trajectory: 1.0, goal: 1.0 }
+      shoulder_lift_joint: { trajectory: 1.0, goal: 1.0 }
+      elbow_joint: { trajectory: 1.0, goal: 1.0 }
+      wrist_1_joint: { trajectory: 1.0, goal: 1.0 }
+      wrist_2_joint: { trajectory: 1.0, goal: 1.0 }
+      wrist_3_joint: { trajectory: 1.0, goal: 1.0 }
+
+# --- Main Arm Controller (Fake/Simulation Hardware) ---
+joint_trajectory_controller:
+  ros__parameters:
+    joints:
+      - shoulder_pan_joint
+      - shoulder_lift_joint
+      - elbow_joint
+      - wrist_1_joint
+      - wrist_2_joint
+      - wrist_3_joint
+    command_interfaces:
+      - position
+    state_interfaces:
+      - position
+      - velocity
+    state_publish_rate: 100.0
+    action_monitor_rate: 20.0
+    allow_partial_joints_goal: false
+    constraints:
+      stopped_velocity_tolerance: 0.2
+      goal_time: 0.0
+      shoulder_pan_joint: { trajectory: 1.0, goal: 1.0 }
+      shoulder_lift_joint: { trajectory: 1.0, goal: 1.0 }
+      elbow_joint: { trajectory: 1.0, goal: 1.0 }
+      wrist_1_joint: { trajectory: 1.0, goal: 1.0 }
+      wrist_2_joint: { trajectory: 1.0, goal: 1.0 }
+      wrist_3_joint: { trajectory: 1.0, goal: 1.0 }
+
+# --- Robotiq Gripper Controller ---
+robotiq_gripper_controller:
+  ros__parameters:
+    joints:
+      - robotiq_85_left_knuckle_joint
+    command_interfaces:
+      - position
+    state_interfaces:
+      - position
+      - velocity
+    state_publish_rate: 100.0
+    action_monitor_rate: 20.0
+    allow_partial_joints_goal: false
+
+# --- URScript Interface Configuration ---
+ur_script_broadcaster:
+  ros__parameters:
+    script_receiver_port: 50002 # Default port for sending URScript
+
+# --- I/O and Status (Tool Contact) ---
+io_and_status_controller:
+  ros__parameters:
+    {}

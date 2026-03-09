@@ -1,0 +1,49 @@
+from launch import LaunchDescription
+from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument
+from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
+from launch_ros.substitutions import FindPackageShare
+
+def generate_launch_description():
+    # 1. Paths to your custom files
+    my_description_pkg = "my_ur_description"
+    
+    # Path to your custom ur_minimal.xacro
+    my_urdf_file = PathJoinSubstitution(
+        [FindPackageShare(my_description_pkg), "urdf", "ur_minimal.xacro"]
+    )
+    
+    # Path to your custom ur_controllers.yaml
+    my_controllers_file = PathJoinSubstitution(
+        [FindPackageShare(my_description_pkg), "config", "ur_controllers.yaml"]
+    )
+
+    # 2. Arguments
+    use_mock_hardware = LaunchConfiguration("use_mock_hardware")
+    robot_ip = LaunchConfiguration("robot_ip")
+
+    # 3. Include the official UR Control Launch
+    # This handles the robot_state_publisher, ros2_control_node, and spawners robustly.
+    official_ur_control = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource([
+            PathJoinSubstitution([
+                FindPackageShare("ur_robot_driver"),
+                "launch",
+                "ur_control.launch.py"
+            ])
+        ]),
+        launch_arguments={
+            "ur_type": "ur12e",
+            "robot_ip": robot_ip,
+            "use_mock_hardware": use_mock_hardware,
+            "description_file": my_urdf_file,          # Uses YOUR xacro
+            "controllers_file": my_controllers_file,    # Uses YOUR yaml
+            "launch_rviz": "true",                     # Robustly starts RViz too
+        }.items(),
+    )
+
+    return LaunchDescription([
+        DeclareLaunchArgument("use_mock_hardware", default_value="false"),
+        DeclareLaunchArgument("robot_ip", default_value="192.168.2.2"),
+        official_ur_control
+    ])
